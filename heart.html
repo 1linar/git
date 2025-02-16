@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Animated Heart</title>
+</head>
+<body style="background: #1a1a1a; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;">
+    <canvas id="heartCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('heartCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        function drawHeart(t) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 心形参数方程
+            const x = (theta) => 16 * Math.pow(Math.sin(theta), 3);
+            const y = (theta) => -13 * Math.cos(theta) + 
+                5 * Math.cos(2*theta) + 
+                2 * Math.cos(3*theta) + 
+                Math.cos(4*theta);
+
+            const scale = 10 + 2 * Math.sin(t * 0.005); // 动态缩放
+            const hue = (t * 0.5) % 360; // 颜色渐变
+
+            ctx.save();
+            ctx.translate(canvas.width/2, canvas.height/2);
+            ctx.scale(scale, scale);
+            
+            ctx.beginPath();
+            for(let theta = 0; theta < 2 * Math.PI; theta += 0.01) {
+                const dx = x(theta);
+                const dy = y(theta);
+                ctx.lineTo(dx, dy);
+            }
+            ctx.closePath();
+
+            // 创建渐变填充
+            const gradient = ctx.createRadialGradient(-5, -5, 1, 0, 0, 20);
+            gradient.addColorStop(0, `hsl(${hue}, 100%, 60%)`);
+            gradient.addColorStop(1, `hsl(${hue}, 100%, 30%)`);
+            
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function animate(t) {
+            drawHeart(t);
+            requestAnimationFrame(animate);
+        }
+
+        // 初始化
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        animate(0);
+    </script>
+</body>
+</html>
